@@ -1,4 +1,5 @@
 import 'vuetify/styles';
+import '@mdi/font/css/materialdesignicons.css'
 import { createApp } from "vue";
 import { createVuetify } from "vuetify";
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
@@ -11,10 +12,20 @@ import * as directives from "vuetify/directives";
 import App from "./App.vue";
 import router from './router/router';
 
+const moniTheme = {
+  dark: false,
+  colors: {
+    primary: '#546E7A',
+  },
+};
+
 const vuetify = createVuetify({
   theme: {
-    defaultTheme: 'light'
+    defaultTheme: 'moniTheme',
+  themes: {
+    moniTheme
   },
+},
   icons: {
     defaultSet: 'mdi',
     aliases,

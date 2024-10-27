@@ -1,4 +1,8 @@
 
+body {
+    background-color: #c42f2f;
+}
+
 html {
   box-sizing: border-box;
   overflow-y: scroll; /* All browsers without overlaying scrollbars */
