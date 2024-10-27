@@ -1,10 +1,12 @@
 import 'vuetify/styles';
 import '@mdi/font/css/materialdesignicons.css'
+import { VNumberInput } from 'vuetify/labs/components';
 import { createApp } from "vue";
 import { createVuetify } from "vuetify";
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
@@ -33,7 +35,10 @@ const vuetify = createVuetify({
       mdi,
     },
   },
-  components,
+  components: {
+    ...components,
+    VNumberInput,
+  },
   directives,
 });
 
@@ -48,6 +53,8 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
+const firestore = getFirestore(firebaseApp);
+
 createApp(App).use(router).use(vuetify).mount("#app");
 
-export { firebaseApp, auth };
+export { firebaseApp, auth, firestore };
