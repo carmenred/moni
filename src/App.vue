@@ -64,7 +64,7 @@ const logout = () => {
 onMounted(() => {
   auth.onAuthStateChanged((user) => {
     isLoggedIn.value = !!user;
-    userEmail.value = user?.email.slice(0, user?.email.indexOf('@'));
+    userEmail.value = user?.email ? user.email.slice(0, user.email.indexOf('@')) : null;
   });
 });
 

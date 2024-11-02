@@ -93,13 +93,14 @@ const addForm = ref<VForm | null>(null);
 const editForm = ref<VForm | null>(null);
 const expenses = ref<Expense[]>([]);
 let auth = null;
-let authUserId = null;
+let authUserId: string | null = null;
 
 type Expense = {
     name: string;
     amount: number;
     date: string;
     id?: string;
+    userId: string;
 }
 
 // FORMS
@@ -206,8 +207,12 @@ onMounted(() => {
      * Checks if the user is logged in
      */
     onAuthStateChanged(auth, (user) => {
-        user ? console.log("user", user) : router.push('/signin');
-        authUserId = user.uid;
+        if (user) {
+            console.log("user", user);
+            authUserId = user.uid;
+        } else {
+            router.push('/signin');
+        }
     });
 
 });
