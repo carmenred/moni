@@ -1,5 +1,5 @@
 <template>
-  <v-app class="bg-blue-grey-lighten-5 pa-8">
+  <v-app class="bg-white pa-8">
 
     <v-app-bar flat color="white">
       <v-toolbar-title class="text-h5 text-primary">{{ title }}</v-toolbar-title>
