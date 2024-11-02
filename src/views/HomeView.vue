@@ -92,6 +92,8 @@ const currentEditExpense = ref<Expense | null>(null);
 const addForm = ref<VForm | null>(null);
 const editForm = ref<VForm | null>(null);
 const expenses = ref<Expense[]>([]);
+let auth = null;
+let authUserId = null;
 
 type Expense = {
     name: string;
@@ -124,6 +126,7 @@ async function addExpense() {
         name: newExpenseName.value,
         amount: newExpenseAmount.value,
         date: new Date().toISOString(),
+        userId: authUserId
     }
     // Adds the expense to the database
     await setDoc(doc(collection(firestore, 'expenses'), new Date().getTime().toString()), newExpense);
@@ -141,14 +144,18 @@ async function getExpenses() {
     expenses.value = [];
     // Gets the expenses from the database
     const expensesSnapshot = await getDocs(collection(firestore, 'expenses'));
+    console.log("expensesSnapshot", expensesSnapshot);
     // Pushes the expenses to the expenses array
     expensesSnapshot.forEach((doc) => {
-        expenses.value.push({
-            name: doc.data().name,
-            amount: doc.data().amount,
-            date: doc.data().date,
-            id: doc.id
-        });
+        if (doc.data().userId === authUserId) {
+            expenses.value.push({
+                name: doc.data().name,
+                amount: doc.data().amount,
+                date: doc.data().date,
+                id: doc.id,
+                userId: doc.data().userId
+            });
+        }
     });
     console.log(expenses.value);
 }
@@ -174,6 +181,7 @@ function editExpense() {
         name: editExpenseName.value,
         amount: editExpenseAmount.value,
         date: editExpenseDate.value,
+        userId: authUserId
     }
     setDoc(doc(collection(firestore, 'expenses'), id), newExpense);
     editExpenseDialog.value = false;
@@ -191,14 +199,15 @@ function deleteExpense(expense: Expense) {
 }
 
 onMounted(() => {
-    const auth = getAuth();
+    auth = getAuth();
     getExpenses();
 
     /**
      * Checks if the user is logged in
      */
     onAuthStateChanged(auth, (user) => {
-        user ? console.log(user) : router.push('/signin');
+        user ? console.log("user", user) : router.push('/signin');
+        authUserId = user.uid;
     });
 
 });

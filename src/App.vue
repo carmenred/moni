@@ -3,10 +3,12 @@
 
     <v-app-bar flat color="white">
       <v-toolbar-title class="text-h5 text-primary">{{ title }}</v-toolbar-title>
-      <v-spacer></v-spacer>
       <template v-slot:prepend>
         <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" color="primary"></v-app-bar-nav-icon>
       </template>
+      <div class="mr-8 text-h6 color-primary">
+        {{ welcomeMsg}}
+      </div>
     </v-app-bar>
 
     <v-navigation-drawer rail v-model="drawer" class="d-flex justify-center align-center pa-1">
@@ -31,6 +33,10 @@ const signInOrSignUp = () => {
   isLoggedIn.value ? logout() : router.push('/signin');
 };
 const isLoggedIn = ref<boolean | null>(null);
+
+const welcomeMsg = computed(() => {
+  return isLoggedIn.value ? `Welcome ${userEmail.value}` : 'Not logged in';
+});
 
 const title = ref("Moni");
 const logIcon = computed(() => {
@@ -58,7 +64,7 @@ const logout = () => {
 onMounted(() => {
   auth.onAuthStateChanged((user) => {
     isLoggedIn.value = !!user;
-    userEmail.value = user?.email;
+    userEmail.value = user?.email.slice(0, user?.email.indexOf('@'));
   });
 });
 

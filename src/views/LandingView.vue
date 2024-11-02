@@ -1,5 +1,5 @@
 <template>
-     <v-main class="d-flex justify-center align-center">
+     <v-main class="bg-grey-lighten-5 d-flex justify-center align-center">
         <v-card class="mx-auto pa-4 bg-white w-md-25 w-sm-75 w-100 ma-4">
             <v-card-title class="font-weight-bold text-h5 text-blue-grey-darken-3">{{ landingText.title }}</v-card-title>
             <v-card-subtitle>{{landingText.subtitle}}</v-card-subtitle>
