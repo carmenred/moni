@@ -112,7 +112,7 @@ const amountRules = [
  * Resets the form fields
  */
 const resetFormFields = (formRef: VForm | null) => {
-    formRef.value?.reset();
+    if (formRef) formRef.reset();
 }
 
 /**
@@ -128,7 +128,7 @@ async function addExpense() {
     // Adds the expense to the database
     await setDoc(doc(collection(firestore, 'expenses'), new Date().getTime().toString()), newExpense);
     newExpenseDialog.value = false;
-    resetFormFields(addForm);
+    resetFormFields(addForm.value);
     // Updates the expenses array
     getExpenses();
 }
@@ -178,7 +178,7 @@ function editExpense() {
     setDoc(doc(collection(firestore, 'expenses'), id), newExpense);
     editExpenseDialog.value = false;
     currentEditExpense.value = null;
-    resetFormFields(editForm);
+    resetFormFields(editForm.value);
     // Updates the expenses array
     getExpenses();
 }
