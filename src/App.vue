@@ -1,18 +1,22 @@
 <template>
   <v-app class="bg-white pa-8">
 
-    <v-app-bar flat color="white">
-      <v-toolbar-title class="text-h5 text-primary">{{ title }}</v-toolbar-title>
+    <v-app-bar flat color="primary">
+      <v-toolbar-title class="text-h5">{{ title }}</v-toolbar-title>
       <template v-slot:prepend>
-        <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" color="primary"></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       </template>
       <div class="mr-8 text-h6 color-primary">
-        {{ welcomeMsg}}
+        {{ welcomeMsg }}
       </div>
     </v-app-bar>
 
-    <v-navigation-drawer rail v-model="drawer" class="d-flex justify-center align-center pa-1">
-      <v-btn @click="signInOrSignUp" :icon="logIcon" flat class="text-primary"></v-btn>
+    <v-navigation-drawer rail v-model="drawer" class="d-flex justify-center align-center pa-1 bg-primary">
+      <v-tooltip :text="signInOrSignUpText">
+        <template v-slot:activator="{ props }">
+          <v-btn @click="signInOrSignUp" :icon="logIcon" flat class="bg-transparent" v-bind="props"></v-btn>
+        </template>
+      </v-tooltip>
     </v-navigation-drawer>
 
     <RouterView />
@@ -27,6 +31,10 @@ import { ref, onMounted, computed } from 'vue';
 import { auth } from './main';
 
 // const route = useRoute();
+
+const signInOrSignUpText = computed(() => {
+  return isLoggedIn.value ? 'Sign out' : 'Sign in';
+});
 
 const userEmail = ref<string | null | undefined>(null);
 const signInOrSignUp = () => {
