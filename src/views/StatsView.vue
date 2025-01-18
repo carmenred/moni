@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { Line, Pie } from 'vue-chartjs';
 import {
     Chart as ChartJS,
