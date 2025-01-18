@@ -1,9 +1,9 @@
 <template>
-    <v-main class="bg-white pa-0 px-0 px-sm-4 pt-4">
-        <v-container class="fill-height px-0 px-sm-4 pt-4">
+    <v-main class="d-flex align-center">
+        <v-container>
             <v-row justify="center" align="center">
-                <v-col cols="12" sm="8" md="4" class="px-0 px-sm-4">
-                    <v-card class="bg-grey-lighten-5">
+                <v-col cols="12" sm="12" md="12" lg="4" class="px-0 px-sm-4">
+                    <v-card class="bg-grey-lighten-5 mx-auto" style="max-width: 75%;">
                         <v-card-title class="font-weight-bold text-h5 text-blue-grey-darken-3">{{ landingText.title }}</v-card-title>
                         <v-card-subtitle>{{landingText.subtitle}}</v-card-subtitle>
 
