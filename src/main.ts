@@ -7,12 +7,15 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { createPinia } from 'pinia'
 
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
 
 import App from "./App.vue";
 import router from './router/router';
+
+const pinia = createPinia()
 
 const moniTheme = {
   dark: false,
@@ -55,6 +58,6 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 
-createApp(App).use(router).use(vuetify).mount("#app");
+createApp(App).use(router).use(vuetify).use(pinia).mount("#app");
 
 export { firebaseApp, auth, firestore };

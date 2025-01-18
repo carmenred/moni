@@ -1,30 +1,36 @@
 <template>
-     <v-main class="bg-grey-lighten-5 d-flex justify-center align-center">
-        <v-card class="mx-auto pa-4 bg-white w-md-25 w-sm-75 w-100 ma-4">
-            <v-card-title class="font-weight-bold text-h5 text-blue-grey-darken-3">{{ landingText.title }}</v-card-title>
-            <v-card-subtitle>{{landingText.subtitle}}</v-card-subtitle>
+    <v-main class="bg-white pa-0 px-0 px-sm-4 pt-4">
+        <v-container class="fill-height px-0 px-sm-4 pt-4">
+            <v-row justify="center" align="center">
+                <v-col cols="12" sm="8" md="4" class="px-0 px-sm-4">
+                    <v-card class="bg-grey-lighten-5">
+                        <v-card-title class="font-weight-bold text-h5 text-blue-grey-darken-3">{{ landingText.title }}</v-card-title>
+                        <v-card-subtitle>{{landingText.subtitle}}</v-card-subtitle>
 
-            <v-card-text>
-                <v-form ref="form">
-                    <v-text-field label="Email" prepend-inner-icon="mdi-email-outline" v-model="email" 
-                    :rules="emailRules" variant="outlined" clearable flat></v-text-field>
-                    <v-text-field :type="showPassword ? 'text' : 'password'" label="Password" prepend-inner-icon="mdi-lock-outline" v-model="password" 
-                    :rules="passwordRules" :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="showPassword = !showPassword"
-                     variant="outlined" clearable flat></v-text-field>
-                    <v-btn block color="primary" @click="signInOrSignUp" class="mt-4 font-weight-bold">{{ landingText.button }}</v-btn>
-                    <!-- TO DO <v-btn class="mt-2 font-weight-bold" prepend-icon="mdi-google" color="blue-grey-darken-3" 
-                    @click="signInWithGoogle" block>Sign in with google</v-btn> -->
+                        <v-card-text>
+                            <v-form ref="form">
+                                <v-text-field v-if="currentRoute === 'signup'" label="Name" prepend-inner-icon="mdi-account-outline" v-model="name" 
+                                :rules="nameRules" variant="outlined" clearable flat></v-text-field>
+                                <v-text-field label="Email" prepend-inner-icon="mdi-email-outline" v-model="email" 
+                                :rules="emailRules" variant="outlined" clearable flat></v-text-field>
+                                <v-text-field :type="showPassword ? 'text' : 'password'" label="Password" prepend-inner-icon="mdi-lock-outline" v-model="password" 
+                                :rules="passwordRules" :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="showPassword = !showPassword"
+                                 variant="outlined" clearable flat></v-text-field>
+                                <v-btn block color="primary" @click="signInOrSignUp" class="mt-4 font-weight-bold">{{ landingText.button }}</v-btn>
 
-                    <p class="text-red-darken-3">{{ logMsg }}</p>
-                </v-form>
+                                <p class="text-red-darken-3">{{ logMsg }}</p>
+                            </v-form>
 
-                <div class="d-flex justify-center text-subtitle-2 text-blue-grey-darken-3 mt-4">{{landingText.underText}}
-                    <a class="text-primary font-weight-bold text-decoration-none cursor-pointer ml-1" @click="switchRoute">
-                        {{landingText.link}}</a>
-                </div>
-            </v-card-text>
-        </v-card> 
+                            <div class="d-flex justify-center text-subtitle-2 text-blue-grey-darken-3 mt-4">{{landingText.underText}}
+                                <a class="text-primary font-weight-bold text-decoration-none cursor-pointer ml-1" @click="switchRoute">
+                                    {{landingText.link}}</a>
+                            </div>
+                        </v-card-text>
+                    </v-card> 
 
+                </v-col>
+            </v-row>
+        </v-container>
     </v-main>
 </template>
 
@@ -33,20 +39,30 @@ import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } f
 import { ref, onMounted, computed } from 'vue';
 import router from '../router/router';
 import { VForm } from 'vuetify/components';
+import { collection, doc, setDoc } from 'firebase/firestore';
+import { firestore } from '../main';
 
 const currentRoute = ref(router.currentRoute.value.name);
 
+/**
+ * Form and validation state
+ */
 const form = ref<VForm | null>(null);
 const email = ref('');
 const password = ref('');
+const name = ref('');
 const auth = getAuth();
 
+/**
+ * Error message state for authentication operations
+ */
 const logMsg = ref('');
 const isLoggedIn = ref(false);
 const showPassword = ref(false);
 
 /**
- * Computed property that returns the landing text based on the current route (sign in or sign up)
+ * Computed properties for landing page text content
+ * Changes based on whether user is signing in or signing up
  */
 const landingText = computed(() => {
     return currentRoute.value === 'signin' ? {
@@ -65,7 +81,7 @@ const landingText = computed(() => {
 });
 
 /**
- * Email and password rules
+ * Form validation rules
  */
 const emailRules = [
     (v: string) => !!v || 'Email is required',
@@ -76,6 +92,8 @@ const passwordRules = [
     (v: string) => !!v || 'Password is required',
     (v: string) => v.length >= 8 || 'Password must be at least 8 characters long',
 ];
+
+const nameRules = [(v: string) => !!v || 'Name is required'];
 
 /**
  * Resets the form fields
@@ -88,18 +106,34 @@ const resetFormFields = () => {
 /**
  * Handles the function to use based on the current route
  * If the route is signin, it will call the sign in function
- * If the route is signup, it will call the sign up function
+ * If the route is signup, it will call the sign up function and create a new document in the users collection to store that user's information
  * It also resets the form fields after the action is complete
  */
-const signInOrSignUp = async () => {
+ const signInOrSignUp = async () => {
     try {
-        const action = currentRoute.value === 'signin' ? signInWithEmailAndPassword : createUserWithEmailAndPassword;
-        await action(auth, email.value, password.value);
+        if (currentRoute.value === "signin") {
+            // Sign In
+            await signInWithEmailAndPassword(auth, email.value, password.value);
+        } else {
+            // Sign Up
+            const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
+            const user = userCredential.user;
+
+            // Save user data to Firestore
+            await setDoc(doc(collection(firestore, 'users'), user.uid), {
+                email: email.value,
+                name: name.value,
+                createdAt: new Date().toISOString(),
+                id: user.uid,
+            });
+        }
+
         resetFormFields();
+        router.push("/");
     } catch (error) {
-        logMsg.value = 'Invalid credentials';
+        logMsg.value = "Invalid credentials";
     }
-}
+};
 
 /**
  * Switches the route based on the current route
@@ -123,3 +157,6 @@ onMounted(() => {
     });
 });
 </script>
+
+<style scoped>
+</style>
