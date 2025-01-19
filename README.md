@@ -1,29 +1,39 @@
 # Moni, a financial management app
 
-## Instalación y configuración
+## Installation and setup
 
-### Requisitos previos
-- npm, pnpm, yarn u otro gestor de paquetes
+### Prerequisites
+- npm, pnpm, yarn or other package manager
 
-### Pasos para la instalación
+### Installation steps
 
-1. Clona el repositorio:
+1. Clone the repository:
    ```bash
    git clone https://github.com/carmenred/moni.git
 
-2. Instala las dependencias:
+
+2. Install dependencies:
    ```bash
    npm install
 
-3. Configura el archivo .env con las variables de entorno necesarias
+3. Configure the .env file with the required environment variables:
+   ```env
+   VITE_API_KEY=your_firebase_api_key
+   VITE_AUTH_DOMAIN=your_firebase_auth_domain
+   VITE_PROJECT_ID=your_firebase_project_id
+   VITE_STORAGE_BUCKET=your_firebase_storage_bucket
+   VITE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+   VITE_APP_ID=your_firebase_app_id
 
-4. Inicia la aplicación (modo desarrollo):
+
+4. Start the application (development mode):
    ```bash
    npm run dev
 
-5. Accede a la aplicación en la url que se te proporcione en la consola
 
-6. Si quieres iniciar la aplicación en modo producción:
+5. Access the application at the URL provided in the console
+
+6. For production build:
    ```bash
    npm run build
 
