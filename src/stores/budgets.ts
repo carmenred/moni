@@ -40,7 +40,7 @@ export const useBudgetStore = defineStore('budgets', () => {
      * @param {boolean} isNew - Whether this is a new budget
      * @returns {Partial<Budget>} The prepared budget data
      */
-    const prepareBudgetData = (data: BudgetData, isNew = false): Partial<Budget> => {
+    const prepareBudgetData = (data: Partial<BudgetData>, isNew = false): Partial<Budget> => {
         const baseData: Partial<Budget> = {
             name: data.name,
             amount: data.amount,
@@ -131,7 +131,7 @@ export const useBudgetStore = defineStore('budgets', () => {
      * @returns {Promise<void>}
      * @throws {Error} If update fails
      */
-    const updateBudget = async (id: string, budgetData: BudgetData) => {
+    const updateBudget = async (id: string, budgetData: Partial<BudgetData>) => {
         if (!authStore.user) return;
 
         const updateData = prepareBudgetData(budgetData);
