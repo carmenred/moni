@@ -14,6 +14,14 @@ import { firestore } from '../main';
 import { useAuthStore } from './auth';
 import type { Budget } from '../types';
 
+// Type for budget creation/update data
+type BudgetData = {
+    name: string;
+    amount: number;
+    sharedWithGroup?: boolean;
+    groupId?: string | null;
+};
+
 export const useBudgetStore = defineStore('budgets', () => {
     /**
      * Store instance for authentication
@@ -27,6 +35,33 @@ export const useBudgetStore = defineStore('budgets', () => {
     const budgets = ref<Budget[]>([]);
 
     /**
+     * Prepares a budget object for Firestore, omitting undefined/null fields
+     * @param {BudgetData} data - The budget data to prepare
+     * @param {boolean} isNew - Whether this is a new budget
+     * @returns {Partial<Budget>} The prepared budget data
+     */
+    const prepareBudgetData = (data: BudgetData, isNew = false): Partial<Budget> => {
+        const baseData: Partial<Budget> = {
+            name: data.name,
+            amount: data.amount,
+            userId: authStore.user?.uid,
+            sharedWithGroup: data.sharedWithGroup ?? false,
+        };
+
+        if (isNew) {
+            baseData.spent = 0;
+            baseData.createdAt = new Date();
+        }
+
+        // Only include groupId if it has a valid value
+        if (data.groupId) {
+            baseData.groupId = data.groupId;
+        }
+
+        return baseData;
+    };
+
+    /**
      * Creates a new budget
      * @param {Object} budgetData - Budget creation data
      * @param {string} budgetData.name - Budget name
@@ -36,24 +71,10 @@ export const useBudgetStore = defineStore('budgets', () => {
      * @returns {Promise<void>}
      * @throws {Error} If budget creation fails
      */
-    const createBudget = async (budgetData: {
-        name: string;
-        amount: number;
-        groupId?: string;
-        sharedWithGroup?: boolean;
-    }) => {
+    const createBudget = async (budgetData: BudgetData) => {
         if (!authStore.user) return;
 
-        const newBudget: Budget = {
-            name: budgetData.name,
-            amount: budgetData.amount,
-            spent: 0,
-            userId: authStore.user.uid,
-            sharedWithGroup: budgetData.sharedWithGroup || false,
-            groupId: budgetData.groupId,
-            createdAt: new Date()
-        };
-
+        const newBudget = prepareBudgetData(budgetData, true);
         await setDoc(doc(collection(firestore, 'budgets')), newBudget);
         await fetchBudgets();
     };
@@ -110,11 +131,11 @@ export const useBudgetStore = defineStore('budgets', () => {
      * @returns {Promise<void>}
      * @throws {Error} If update fails
      */
-    const updateBudget = async (id: string, budgetData: Partial<Budget>) => {
-        await setDoc(doc(collection(firestore, 'budgets'), id), {
-            ...budgetData,
-            userId: authStore.user?.uid
-        }, { merge: true });
+    const updateBudget = async (id: string, budgetData: BudgetData) => {
+        if (!authStore.user) return;
+
+        const updateData = prepareBudgetData(budgetData);
+        await setDoc(doc(collection(firestore, 'budgets'), id), updateData, { merge: true });
         await fetchBudgets();
     };
 
